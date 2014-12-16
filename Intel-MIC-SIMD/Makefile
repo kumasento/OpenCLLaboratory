@@ -12,7 +12,13 @@ AMDAPPDIR=/opt/AMDAPPSDK-2.9-1
 INTELINC=/opt/intel/opencl-sdk/include
 INTELLIB=/opt/intel/opencl-sdk/lib64
 
-ICPC=icpc
+ICPC=g++
+
+intel:
+	make intel-dim0
+	make intel-dim4
+	make intel-dim8
+	make intel-dim16
 
 intel-dim0:
 	$(ICPC) \
@@ -32,6 +38,23 @@ intel-dim4:
 		-L$(INTELLIB) \
 		-lOpenCL
 
+intel-dim8:
+	$(ICPC) \
+		$(SRC)/oclcommon.cpp \
+		$(SRC)/saxpy_dim8.cpp -o \
+		$(BIN)/saxpy_dim8_intel.o \
+		-I$(INC) -I$(INTELINC) \
+		-L$(INTELLIB) \
+		-lOpenCL
+
+intel-dim16:
+	$(ICPC) \
+		$(SRC)/oclcommon.cpp \
+		$(SRC)/saxpy_dim16.cpp -o \
+		$(BIN)/saxpy_dim16_intel.o \
+		-I$(INC) -I$(INTELINC) \
+		-L$(INTELLIB) \
+		-lOpenCL
 osx-dim0:
 	$(CXX) \
 		$(SRC)/oclcommon.cpp \

@@ -18,7 +18,7 @@ int main(int argc, char *argv[]){
     }
     
     cl_int errorCode;
-    cl_device_type      deviceType = CL_DEVICE_TYPE_ALL;
+    cl_device_type      deviceType = CL_DEVICE_TYPE_ACCELERATOR;
     cl_device_id *      devices = NULL;
     cl_context          context = NULL;
     cl_command_queue    cmdQueue = NULL;
@@ -63,7 +63,6 @@ int main(int argc, char *argv[]){
     printf("Start to Run ...\n");
     cl_event runEvent;
     errorCode = clEnqueueNDRangeKernel(cmdQueue, kernel, 1, NULL, globalSize, localSize, 0, NULL, &runEvent); CHECKERROR;
-
 
     printf("Start to Readback ...\n");
     errorCode = clEnqueueReadBuffer(cmdQueue, Z_mem, CL_TRUE, 0, sizeof(float)*length, Z, 0, NULL, NULL); CHECKERROR;

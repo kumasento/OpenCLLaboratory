@@ -18,7 +18,7 @@ int main(int argc, char *argv[]){
     }
     
     cl_int errorCode;
-    cl_device_type      deviceType = CL_DEVICE_TYPE_ALL;
+    cl_device_type      deviceType = CL_DEVICE_TYPE_CPU;
     cl_device_id *      devices = NULL;
     cl_context          context = NULL;
     cl_command_queue    cmdQueue = NULL;

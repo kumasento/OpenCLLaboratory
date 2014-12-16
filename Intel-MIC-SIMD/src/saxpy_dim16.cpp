@@ -18,7 +18,7 @@ int main(int argc, char *argv[]){
     }
     
     cl_int errorCode;
-    cl_device_type      deviceType = CL_DEVICE_TYPE_ALL;
+    cl_device_type      deviceType = CL_DEVICE_TYPE_ACCELERATOR;
     cl_device_id *      devices = NULL;
     cl_context          context = NULL;
     cl_command_queue    cmdQueue = NULL;
@@ -50,26 +50,27 @@ int main(int argc, char *argv[]){
     ALLOCATE_GPU_READ(Y_mem, Y, sizeof(float)*length);
     ALLOCATE_GPU_READ_WRITE_INIT(Z_mem, Z, sizeof(float)*length); 
     
-    size_t globalSize[1] = {length/4};
+    size_t globalSize[1] = {length/16};
     size_t localSize[1] = {1};
 
     float alpha = 0.2;
-    cl_kernel kernel = clCreateKernel(program, "saxpy_dim4", &errorCode); CHECKERROR;
+    cl_kernel kernel = clCreateKernel(program, "saxpy_dim16", &errorCode); CHECKERROR;
     errorCode = clSetKernelArg(kernel, 0, sizeof(cl_mem), &X_mem); CHECKERROR;
     errorCode = clSetKernelArg(kernel, 1, sizeof(cl_mem), &Y_mem); CHECKERROR;
     errorCode = clSetKernelArg(kernel, 2, sizeof(cl_mem), &Z_mem); CHECKERROR;
     errorCode = clSetKernelArg(kernel, 3, sizeof(cl_float), &alpha); CHECKERROR;
 
+    errorCode = clEnqueueNDRangeKernel(cmdQueue, kernel, 1, NULL, globalSize, localSize, 0, NULL, NULL); CHECKERROR;
     printf("Start to Run ...\n");
     cl_event runEvent;
     errorCode = clEnqueueNDRangeKernel(cmdQueue, kernel, 1, NULL, globalSize, localSize, 0, NULL, &runEvent); CHECKERROR;
+    errorCode = clFinish(cmdQueue);
 
+    printf("Execution Time: %.2fns\n", executionTime(runEvent) / length * 1e9);
 
     printf("Start to Readback ...\n");
     errorCode = clEnqueueReadBuffer(cmdQueue, Z_mem, CL_TRUE, 0, sizeof(float)*length, Z, 0, NULL, NULL); CHECKERROR;
     
-    errorCode = clFinish(cmdQueue);
-    printf("Execution Time: %.2fns\n", executionTime(runEvent) / length * 1e9);
     printf("Checking Correctness ...\n");
     
     for (int i = 0; i < length; i++) {
